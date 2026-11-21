@@ -15,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Descargar archivos del repositorio
+      - name: Descargar repositorio
         uses: actions/checkout@v4
 
-      - name: Preparar Java
+      - name: Preparar Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -27,34 +27,28 @@ jobs:
       - name: Preparar Android SDK
         uses: android-actions/setup-android@v4
 
-      - name: Extraer proyecto ZIP
+      - name: Extraer proyecto
         run: |
-          if [ ! -f MI_AI_VIDEO_SOURCE.zip ]; then
-            echo "ERROR: No se encuentra MI_AI_VIDEO_SOURCE.zip"
-            exit 1
-          fi
           mkdir -p proyecto
-          unzip -o MI_AI_VIDEO_SOURCE.zip -d proyecto
+          unzip -o MI_AI_VIDEO_v0_4.zip -d proyecto
 
-      - name: Instalar paquetes Android
+      - name: Instalar SDK Android
         run: |
           sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Descargar Gradle
-        run: |
-          curl -fL --retry 3 \
-          https://services.gradle.org/distributions/gradle-8.9-bin.zip \
-          -o gradle.zip
-          unzip -q gradle.zip
+      - name: Configurar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
 
-      - name: Compilar aplicación
+      - name: Compilar APK
         run: |
-          cd proyecto
-          ../gradle-8.9/bin/gradle --no-daemon assembleDebug
+          cd proyecto/MI_AI_VIDEO_v0_4
+          gradle --no-daemon assembleDebug
 
-      - name: Entregar APK
+      - name: Publicar APK
         uses: actions/upload-artifact@v4
         with:
-          name: MI-AI-VIDEO-APK
-          path: proyecto/app/build/outputs/apk/debug/app-debug.apk
+          name: MI-AI-VIDEO-v0.4
+          path: proyecto/MI_AI_VIDEO_v0_4/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
