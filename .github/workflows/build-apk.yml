@@ -1,0 +1,60 @@
+
+name: MI AI VIDEO - Build APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar archivos del repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Preparar Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Extraer proyecto ZIP
+        run: |
+          if [ ! -f MI_AI_VIDEO_SOURCE.zip ]; then
+            echo "ERROR: No se encuentra MI_AI_VIDEO_SOURCE.zip"
+            exit 1
+          fi
+          mkdir -p proyecto
+          unzip -o MI_AI_VIDEO_SOURCE.zip -d proyecto
+
+      - name: Instalar paquetes Android
+        run: |
+          sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Descargar Gradle
+        run: |
+          curl -fL --retry 3 \
+          https://services.gradle.org/distributions/gradle-8.9-bin.zip \
+          -o gradle.zip
+          unzip -q gradle.zip
+
+      - name: Compilar aplicación
+        run: |
+          cd proyecto
+          ../gradle-8.9/bin/gradle --no-daemon assembleDebug
+
+      - name: Entregar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MI-AI-VIDEO-APK
+          path: proyecto/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
