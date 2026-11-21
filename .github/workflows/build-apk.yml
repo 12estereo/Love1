@@ -27,10 +27,9 @@ jobs:
       - name: Preparar Android SDK
         uses: android-actions/setup-android@v4
 
-      - name: Extraer proyecto
+      - name: Extraer proyecto ZIP
         run: |
-          mkdir -p proyecto
-          unzip -o MI_AI_VIDEO_v0_4.zip -d proyecto
+          unzip -o MI_AI_VIDEO_v0_6.zip -d proyecto
 
       - name: Instalar SDK Android
         run: |
@@ -43,12 +42,12 @@ jobs:
 
       - name: Compilar APK
         run: |
-          cd proyecto/MI_AI_VIDEO_v0_4
+          cd proyecto/MI_AI_VIDEO_v0_6
           gradle --no-daemon assembleDebug
 
       - name: Publicar APK
         uses: actions/upload-artifact@v4
         with:
-          name: MI-AI-VIDEO-v0.4
-          path: proyecto/MI_AI_VIDEO_v0_4/app/build/outputs/apk/debug/app-debug.apk
+          name: MI-AI-VIDEO-v0.6
+          path: proyecto/MI_AI_VIDEO_v0_6/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
